@@ -2,6 +2,8 @@ package jp.aymandev.kabaneri.events;
 
 import jp.aymandev.kabaneri.Helper;
 import jp.aymandev.kabaneri.WeaponFactory;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -54,6 +56,9 @@ public class WeaponEvents implements Listener {
         snowball.setInvulnerable(true);
         world.playSound(eyeLoc, Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 0.5f, 1.0f);
 
+        ComponentBuilder componentBuilder = new ComponentBuilder("[ Ammo: ");
+        componentBuilder.append(String.valueOf(ammo)).append(" ]");
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, componentBuilder.create());
         break;
     }
     event.setCancelled(true);

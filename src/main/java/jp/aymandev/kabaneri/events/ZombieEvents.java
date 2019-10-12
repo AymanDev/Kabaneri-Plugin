@@ -9,7 +9,11 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityCombustByBlockEvent;
+import org.bukkit.event.entity.EntityCombustByEntityEvent;
+import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 
 public class ZombieEvents implements Listener {
@@ -28,7 +32,7 @@ public class ZombieEvents implements Listener {
     Hologram holo =
         HologramsAPI.createHologram(
             KabaneriCore.getInstance(), zombie.getEyeLocation().add(0d, 1d, 0d));
-    holo.appendTextLine("Very Cool Zombie");
+    holo.appendTextLine("Kabane");
     holo.appendTextLine(
         ChatColor.RED
             + "♥"
@@ -39,5 +43,30 @@ public class ZombieEvents implements Listener {
             + "/"
             + Math.round(zombie.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
     Helper.attachHologramToZombie(zombie, holo);
+  }
+
+  /**
+   * Zombie Burning Events Just checking combust event and canceling it if entity is zombie. Also
+   * checking other combust sources with higher priority and allowing combusting if source in entity
+   * or block. This is disabling entity to combust from sun but they still available to combust from
+   * entity attacks or fire block
+   */
+  @EventHandler
+  public void onZombieBurningFromSun(EntityCombustEvent event) {
+    event.setCancelled(event.getEntityType() == EntityType.ZOMBIE);
+  }
+
+  @EventHandler(priority = EventPriority.HIGH)
+  public void onZombieBurningFromBlock(EntityCombustByBlockEvent event) {
+    if (event.getEntityType() == EntityType.ZOMBIE) {
+      event.setCancelled(false);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.HIGH)
+  public void onZombieBurningFromEntity(EntityCombustByEntityEvent event) {
+    if (event.getEntityType() == EntityType.ZOMBIE) {
+      event.setCancelled(false);
+    }
   }
 }

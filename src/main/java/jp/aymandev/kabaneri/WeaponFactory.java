@@ -1,5 +1,6 @@
 package jp.aymandev.kabaneri;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemFlag;
@@ -18,6 +19,10 @@ public class WeaponFactory {
   private static final NamespacedKey WEAPON_KEY =
       new NamespacedKey(KabaneriCore.getInstance(), "weapon");
 
+  /**
+   * Generating ItemStack for weapon
+   * @return Generated weapon ItemStack
+   */
   public static ItemStack createWeapon() {
     ItemStack itemStack = new ItemStack(Material.DIAMOND_SWORD);
     ItemMeta itemMeta = itemStack.getItemMeta();
@@ -25,7 +30,7 @@ public class WeaponFactory {
       return null;
     }
 
-    itemMeta.setDisplayName("Steam Gun");
+    itemMeta.setDisplayName(ChatColor.RESET + "Steam Gun");
     List<String> lore = new ArrayList<>();
     lore.add("Ammo: " + 30);
     itemMeta.setLore(lore);
@@ -41,6 +46,11 @@ public class WeaponFactory {
     return itemStack;
   }
 
+  /**
+   * Decreasing current weapon ammo value
+   * @param itemStack ItemStack which have to decrease ammo
+   * @return Updated ItemStack. This is optionally because ItemStack immutable
+   */
   public static ItemStack decreaseAmmo(ItemStack itemStack) {
     ItemMeta itemMeta = itemStack.getItemMeta();
     if (itemMeta == null) {
@@ -63,6 +73,12 @@ public class WeaponFactory {
     return itemStack;
   }
 
+
+  /**
+   * Reloading current weapon
+   * @param itemStack ItemStack which have to reload
+   * @return Updated ItemStack. This is optionally because ItemStack immutable
+   */
   public static ItemStack reloadWeapon(ItemStack itemStack) {
     ItemMeta itemMeta = itemStack.getItemMeta();
     if (itemMeta == null) {
@@ -84,6 +100,11 @@ public class WeaponFactory {
     return itemStack;
   }
 
+  /**
+   * Use this method for receiving current ammo in weapon
+   * @param itemStack ItemStack which have to get current ammo state
+   * @return Ammo count
+   */
   public static int getAmmoInWeapon(ItemStack itemStack) {
     ItemMeta itemMeta = itemStack.getItemMeta();
     if (itemMeta == null) {
