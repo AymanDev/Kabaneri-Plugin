@@ -1,0 +1,7 @@
+name: Kabaneri
+version: 1.0 ALPHA
+main: jp.aymandev.kabaneri.KabaneriCore
+softdepend: [HolographicDisplays, ProtocolLib]
+description: This is plugin for testing availability to create project based on anime Kabaneri of the Iron Fortress. Custom zombies and weapon
+author: AymanDev
+website: https://github.com/AymanDev
