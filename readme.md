@@ -18,6 +18,7 @@ will looks like in Koutetsujou no Kabaneri
 * *more...*
 
 ## Dependencies
+* Spigot - Plugin created on spigot-1.14-R0.1-SNAPSHOT
 * [Holographic Display](https://dev.bukkit.org/projects/holographic-displays)
 * [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997/) - required for Holograms, 
 but in future will be useful for plugin
