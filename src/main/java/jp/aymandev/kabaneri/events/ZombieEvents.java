@@ -37,7 +37,7 @@ public class ZombieEvents implements Listener {
             + " "
             + Math.round(zombie.getHealth())
             + "/"
-            + zombie.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+            + Math.round(zombie.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
     Helper.attachHologramToZombie(zombie, holo);
   }
 }

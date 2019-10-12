@@ -36,9 +36,9 @@ public class Helper {
                   + "♥"
                   + ChatColor.RESET
                   + " "
-                  + zombie.getHealth()
+                  + Math.round(zombie.getHealth())
                   + "/"
-                  + zombie.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+                  + Math.round(zombie.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
           prevHealth = zombie.getHealth();
         }
 

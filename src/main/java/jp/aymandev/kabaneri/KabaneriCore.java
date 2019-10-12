@@ -1,5 +1,11 @@
 package jp.aymandev.kabaneri;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketEvent;
+import jp.aymandev.kabaneri.commands.CommandGetWeapon;
 import jp.aymandev.kabaneri.events.EntityEvents;
 import jp.aymandev.kabaneri.events.WeaponEvents;
 import jp.aymandev.kabaneri.events.ZombieEvents;
@@ -12,6 +18,7 @@ public class KabaneriCore extends JavaPlugin implements Listener {
 
   private static final String[] DEPENDENCIES = new String[] {"HolographicDisplays", "ProtocolLib"};
   private static KabaneriCore instance;
+  private ProtocolManager protocolManager;
 
   /** Checking for required dependencies and registering events with instance */
   @Override
@@ -35,7 +42,25 @@ public class KabaneriCore extends JavaPlugin implements Listener {
     this.getServer().getPluginManager().registerEvents(new ZombieEvents(), this);
     this.getServer().getPluginManager().registerEvents(new WeaponEvents(), this);
 
+    this.getCommand("getweapon").setExecutor(new CommandGetWeapon());
+
     KabaneriCore.instance = this;
+    protocolManager = ProtocolLibrary.getProtocolManager();
+
+    protocolManager.addPacketListener(
+        new PacketAdapter(this, PacketType.Play.Client.ARM_ANIMATION) {
+          @Override
+          public void onPacketReceiving(PacketEvent event) {
+              event.getPlayer().sendMessage("Animation catched receiving!");
+//            WrapperPlayClientArmAnimation wrapper = WrapperPlayClientArmAnimation(event.getPacket());
+          }
+
+          @Override
+          public void onPacketSending(PacketEvent event) {
+            event.getPlayer().sendMessage("Animation catched sending!");
+            event.setCancelled(true);
+          }
+        });
   }
 
   @Override

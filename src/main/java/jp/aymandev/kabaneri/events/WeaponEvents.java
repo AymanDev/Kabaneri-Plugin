@@ -1,15 +1,14 @@
 package jp.aymandev.kabaneri.events;
 
 import jp.aymandev.kabaneri.Helper;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import jp.aymandev.kabaneri.WeaponFactory;
+import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class WeaponEvents implements Listener {
 
@@ -20,22 +19,44 @@ public class WeaponEvents implements Listener {
   @EventHandler
   public void onPlayerItemUse(PlayerInteractEvent event) {
     Player player = event.getPlayer();
-    if (player.getInventory().getItemInMainHand().getType() != Material.DIAMOND_SWORD) {
+    World world = player.getWorld();
+    ItemStack heldItemStack = player.getInventory().getItemInMainHand();
+
+    if (heldItemStack.getType() != Material.DIAMOND_SWORD) {
       return;
     }
 
     switch (event.getAction()) {
+      case LEFT_CLICK_AIR:
+      case LEFT_CLICK_BLOCK:
+        WeaponFactory.reloadWeapon(heldItemStack);
+        world.playSound(player.getLocation(), Sound.BLOCK_WOODEN_DOOR_OPEN, 1f, 1f);
+        player.sendMessage(ChatColor.GREEN + "Weapon reloaded!");
+        event.setCancelled(true);
+        break;
+
       case RIGHT_CLICK_AIR:
       case RIGHT_CLICK_BLOCK:
-        World world = player.getWorld();
+        int ammo = WeaponFactory.getAmmoInWeapon(heldItemStack);
+        if (ammo <= 0) {
+          WeaponFactory.reloadWeapon(heldItemStack);
+          world.playSound(player.getLocation(), Sound.BLOCK_WOODEN_DOOR_OPEN, 1f, 1f);
+          player.sendMessage(ChatColor.GREEN + "Weapon reloaded!");
+          event.setCancelled(true);
+          return;
+        }
+
+        WeaponFactory.decreaseAmmo(heldItemStack);
         Location eyeLoc = player.getEyeLocation();
         Snowball snowball = (Snowball) world.spawnEntity(eyeLoc, EntityType.SNOWBALL);
         snowball.setVelocity(eyeLoc.getDirection().multiply(3.0d));
         snowball.setCustomName(Helper.BULLET_NAME_TAG);
         snowball.setInvulnerable(true);
         world.playSound(eyeLoc, Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 0.5f, 1.0f);
+
         break;
     }
+    event.setCancelled(true);
   }
 
   /**
