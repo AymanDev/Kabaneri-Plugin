@@ -6,6 +6,7 @@ import jp.aymandev.kabaneri.commands.CommandGetWeapon;
 import jp.aymandev.kabaneri.events.EntityEvents;
 import jp.aymandev.kabaneri.events.WeaponEvents;
 import jp.aymandev.kabaneri.events.ZombieEvents;
+import jp.aymandev.kabaneri.items.weapons.WeaponList;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.Listener;
@@ -17,6 +18,7 @@ public class KabaneriCore extends JavaPlugin implements Listener {
       new String[] {"HolographicDisplays", "ProtocolLib", "PacketWrapper"};
   private static KabaneriCore instance;
   private ProtocolManager protocolManager;
+  private WeaponList weaponList;
 
   /** Checking for required dependencies and registering events with instance */
   @Override
@@ -43,7 +45,8 @@ public class KabaneriCore extends JavaPlugin implements Listener {
     this.getCommand("getweapon").setExecutor(new CommandGetWeapon());
 
     KabaneriCore.instance = this;
-    protocolManager = ProtocolLibrary.getProtocolManager();
+    this.protocolManager = ProtocolLibrary.getProtocolManager();
+    this.weaponList = new WeaponList();
   }
 
   @Override

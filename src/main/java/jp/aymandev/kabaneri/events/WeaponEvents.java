@@ -1,7 +1,9 @@
 package jp.aymandev.kabaneri.events;
 
 import jp.aymandev.kabaneri.Helper;
-import jp.aymandev.kabaneri.WeaponFactory;
+import jp.aymandev.kabaneri.items.weapons.ItemWeapon;
+import jp.aymandev.kabaneri.items.weapons.WeaponFactory;
+import jp.aymandev.kabaneri.items.weapons.WeaponList;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.*;
@@ -24,44 +26,56 @@ public class WeaponEvents implements Listener {
     World world = player.getWorld();
     ItemStack heldItemStack = player.getInventory().getItemInMainHand();
 
-    if (heldItemStack.getType() != Material.DIAMOND_SWORD) {
+    ItemWeapon itemWeapon = WeaponList.getItem(heldItemStack);
+    if (itemWeapon == null) {
       return;
     }
 
     switch (event.getAction()) {
       case LEFT_CLICK_AIR:
       case LEFT_CLICK_BLOCK:
-        WeaponFactory.reloadWeapon(heldItemStack);
-        world.playSound(player.getLocation(), Sound.BLOCK_WOODEN_DOOR_OPEN, 1f, 1f);
-        player.sendMessage(ChatColor.GREEN + "Weapon reloaded!");
-        event.setCancelled(true);
+        {
+          WeaponFactory.reloadWeapon(heldItemStack);
+          world.playSound(player.getLocation(), Sound.BLOCK_WOODEN_DOOR_OPEN, 1f, 1f);
+
+          int ammo = WeaponFactory.getAmmoInWeapon(heldItemStack);
+          WeaponEvents.sendCurrentAmmoMessage(ammo, player);
+          event.setCancelled(true);
+        }
         break;
 
       case RIGHT_CLICK_AIR:
       case RIGHT_CLICK_BLOCK:
-        int ammo = WeaponFactory.getAmmoInWeapon(heldItemStack);
-        if (ammo <= 0) {
-          WeaponFactory.reloadWeapon(heldItemStack);
-          world.playSound(player.getLocation(), Sound.BLOCK_WOODEN_DOOR_OPEN, 1f, 1f);
-          player.sendMessage(ChatColor.GREEN + "Weapon reloaded!");
-          event.setCancelled(true);
-          return;
+        {
+          int ammo = WeaponFactory.getAmmoInWeapon(heldItemStack);
+          if (ammo <= 0) {
+            WeaponFactory.reloadWeapon(heldItemStack);
+            world.playSound(player.getLocation(), Sound.BLOCK_WOODEN_DOOR_OPEN, 1f, 1f);
+            ammo = WeaponFactory.getAmmoInWeapon(heldItemStack);
+            WeaponEvents.sendCurrentAmmoMessage(ammo, player);
+            event.setCancelled(true);
+            return;
+          }
+
+          WeaponFactory.decreaseAmmo(heldItemStack);
+          Location eyeLoc = player.getEyeLocation();
+          Snowball snowball = (Snowball) world.spawnEntity(eyeLoc, EntityType.SNOWBALL);
+          snowball.setVelocity(eyeLoc.getDirection().multiply(3.0d));
+          snowball.setCustomName(Helper.BULLET_NAME_TAG);
+          snowball.setInvulnerable(true);
+          world.playSound(eyeLoc, Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 0.5f, 1.0f);
+
+          WeaponEvents.sendCurrentAmmoMessage(--ammo, player);
         }
-
-        WeaponFactory.decreaseAmmo(heldItemStack);
-        Location eyeLoc = player.getEyeLocation();
-        Snowball snowball = (Snowball) world.spawnEntity(eyeLoc, EntityType.SNOWBALL);
-        snowball.setVelocity(eyeLoc.getDirection().multiply(3.0d));
-        snowball.setCustomName(Helper.BULLET_NAME_TAG);
-        snowball.setInvulnerable(true);
-        world.playSound(eyeLoc, Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 0.5f, 1.0f);
-
-        ComponentBuilder componentBuilder = new ComponentBuilder("[ Ammo: ");
-        componentBuilder.append(String.valueOf(ammo)).append(" ]");
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, componentBuilder.create());
         break;
     }
     event.setCancelled(true);
+  }
+
+  private static void sendCurrentAmmoMessage(int ammo, Player player) {
+    ComponentBuilder componentBuilder = new ComponentBuilder("[ Ammo: ");
+    componentBuilder.append(String.valueOf(ammo)).append(" ]");
+    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, componentBuilder.create());
   }
 
   /**

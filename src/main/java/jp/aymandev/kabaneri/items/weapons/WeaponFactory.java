@@ -1,7 +1,7 @@
-package jp.aymandev.kabaneri;
+package jp.aymandev.kabaneri.items.weapons;
 
+import jp.aymandev.kabaneri.KabaneriCore;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -16,31 +16,33 @@ public class WeaponFactory {
   private static final String AMMO_WEAPON_TAG = "ammo";
   private static final NamespacedKey AMMO_KEY =
       new NamespacedKey(KabaneriCore.getInstance(), AMMO_WEAPON_TAG);
-  private static final NamespacedKey WEAPON_KEY =
+  public static final NamespacedKey WEAPON_KEY =
       new NamespacedKey(KabaneriCore.getInstance(), "weapon");
 
   /**
    * Generating ItemStack for weapon
+   *
    * @return Generated weapon ItemStack
    */
-  public static ItemStack createWeapon() {
-    ItemStack itemStack = new ItemStack(Material.DIAMOND_SWORD);
+  public static ItemStack createWeapon(ItemWeapon itemWeapon) {
+    ItemStack itemStack = new ItemStack(itemWeapon.getMaterial());
     ItemMeta itemMeta = itemStack.getItemMeta();
     if (itemMeta == null) {
       return null;
     }
 
-    itemMeta.setDisplayName(ChatColor.RESET + "Steam Gun");
+    itemMeta.setDisplayName(ChatColor.RESET + itemWeapon.getName());
     List<String> lore = new ArrayList<>();
-    lore.add("Ammo: " + 30);
+    lore.add("Ammo: " + itemWeapon.getMaxAmmo());
     itemMeta.setLore(lore);
     itemMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ATTRIBUTES);
     itemMeta.setUnbreakable(true);
+    itemMeta.setCustomModelData(itemWeapon.getModelId());
 
     // Building custom data, for ammo
     PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
-    dataContainer.set(WEAPON_KEY, PersistentDataType.INTEGER, 1);
-    dataContainer.set(AMMO_KEY, PersistentDataType.INTEGER, 30);
+    dataContainer.set(WEAPON_KEY, PersistentDataType.STRING, itemWeapon.getItemTagName());
+    dataContainer.set(AMMO_KEY, PersistentDataType.INTEGER, itemWeapon.getMaxAmmo());
 
     itemStack.setItemMeta(itemMeta);
     return itemStack;
@@ -48,18 +50,18 @@ public class WeaponFactory {
 
   /**
    * Decreasing current weapon ammo value
+   *
    * @param itemStack ItemStack which have to decrease ammo
-   * @return Updated ItemStack. This is optionally because ItemStack immutable
    */
-  public static ItemStack decreaseAmmo(ItemStack itemStack) {
+  public static void decreaseAmmo(ItemStack itemStack) {
     ItemMeta itemMeta = itemStack.getItemMeta();
     if (itemMeta == null) {
-      return itemStack;
+      return;
     }
 
     PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
     if (!dataContainer.has(AMMO_KEY, PersistentDataType.INTEGER)) {
-      return itemStack;
+      return;
     }
 
     int ammo = dataContainer.get(AMMO_KEY, PersistentDataType.INTEGER);
@@ -70,38 +72,41 @@ public class WeaponFactory {
     itemMeta.setLore(lore);
 
     itemStack.setItemMeta(itemMeta);
-    return itemStack;
   }
-
 
   /**
    * Reloading current weapon
+   *
    * @param itemStack ItemStack which have to reload
-   * @return Updated ItemStack. This is optionally because ItemStack immutable
    */
-  public static ItemStack reloadWeapon(ItemStack itemStack) {
+  public static void reloadWeapon(ItemStack itemStack) {
     ItemMeta itemMeta = itemStack.getItemMeta();
     if (itemMeta == null) {
-      return itemStack;
+      return;
+    }
+
+    ItemWeapon itemWeapon = WeaponList.getItem(itemStack);
+    if (itemWeapon == null) {
+      return;
     }
 
     PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
     if (!dataContainer.has(AMMO_KEY, PersistentDataType.INTEGER)) {
-      return itemStack;
+      return;
     }
 
-    dataContainer.set(AMMO_KEY, PersistentDataType.INTEGER, 30);
+    dataContainer.set(AMMO_KEY, PersistentDataType.INTEGER, itemWeapon.getMaxAmmo());
 
     List<String> lore = new ArrayList<>();
-    lore.add("Ammo: " + 30);
+    lore.add("Ammo: " + itemWeapon.getMaxAmmo());
     itemMeta.setLore(lore);
 
     itemStack.setItemMeta(itemMeta);
-    return itemStack;
   }
 
   /**
    * Use this method for receiving current ammo in weapon
+   *
    * @param itemStack ItemStack which have to get current ammo state
    * @return Ammo count
    */
